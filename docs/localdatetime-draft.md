@@ -56,11 +56,11 @@ class Temporal.LocalDateTime {
 
   // type conversion
   toInstant(): Temporal.Instant;
-  toPlainDateTime(): Temporal.DateTime;
-  toPlainDate(): Temporal.Date;
-  toPlainYearMonth(): Temporal.YearMonth;
-  toPlainMonthDay(): Temporal.MonthDay;
-  toPlainTime(): Temporal.Time;
+  toPlainDateTime(): Temporal.PlainDateTime;
+  toPlainDate(): Temporal.PlainDate;
+  toPlainYearMonth(): Temporal.PlainYearMonth;
+  toPlainMonthDay(): Temporal.PlainMonthDay;
+  toPlainTime(): Temporal.PlainTime;
 
   // comparison
   static compare(one: Temporal.LocalDateTime, two: Temporal.LocalDateTime): number;

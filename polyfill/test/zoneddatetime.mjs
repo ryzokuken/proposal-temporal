@@ -1419,9 +1419,9 @@ describe('ZonedDateTime', () => {
     });
   });
 
-  const hourBeforeDstStart = ZonedDateTime.from({ ...new Temporal.DateTime(2020, 3, 8, 1).getFields(), timeZone: tz });
+  const hourBeforeDstStart = ZonedDateTime.from({ ...new Temporal.PlainDateTime(2020, 3, 8, 1).getFields(), timeZone: tz });
   const dayBeforeDstStart = ZonedDateTime.from({
-    ...new Temporal.DateTime(2020, 3, 7, 2, 30).getFields(),
+    ...new Temporal.PlainDateTime(2020, 3, 7, 2, 30).getFields(),
     timeZone: tz
   });
   describe('properties around DST', () => {
@@ -1582,7 +1582,7 @@ describe('ZonedDateTime', () => {
       const clockBefore = ZonedDateTime.from('1999-12-31T23:30-08:00[America/Vancouver]');
       const clockAfter = ZonedDateTime.from('2000-01-01T01:30-04:00[America/Halifax]');
       equal(ZonedDateTime.compare(clockBefore, clockAfter), 1);
-      equal(Temporal.DateTime.compare(clockBefore.toPlainDateTime(), clockAfter.toPlainDateTime()), -1);
+      equal(Temporal.PlainDateTime.compare(clockBefore.toPlainDateTime(), clockAfter.toPlainDateTime()), -1);
     });
   });
 });

@@ -129,7 +129,7 @@ export class ZonedDateTime {
   get hoursInDay() {
     if (!ES.IsTemporalZonedDateTime(this)) throw new TypeError('invalid receiver');
     const dt = dateTime(this);
-    const DateTime = GetIntrinsic('%Temporal.DateTime%');
+    const DateTime = GetIntrinsic('%Temporal.PlainDateTime%');
     const year = GetSlot(dt, ISO_YEAR);
     const month = GetSlot(dt, ISO_MONTH);
     const day = GetSlot(dt, ISO_DAY);
@@ -355,7 +355,7 @@ export class ZonedDateTime {
     // offset. Otherwise the offset will be changed to be compatible with the
     // new date/time values. If DST disambiguation is required, the `compatible`
     // disambiguation algorithm will be used.
-    const DateTime = GetIntrinsic('%Temporal.DateTime%');
+    const DateTime = GetIntrinsic('%Temporal.PlainDateTime%');
     const calendar = GetSlot(this, CALENDAR);
     const rounded = new DateTime(
       year,
@@ -427,7 +427,7 @@ export class ZonedDateTime {
   startOfDay() {
     if (!ES.IsTemporalZonedDateTime(this)) throw new TypeError('invalid receiver');
     const dt = dateTime(this);
-    const DateTime = GetIntrinsic('%Temporal.DateTime%');
+    const DateTime = GetIntrinsic('%Temporal.PlainDateTime%');
     const dtStart = new DateTime(GetSlot(dt, ISO_YEAR), GetSlot(dt, ISO_MONTH), GetSlot(dt, ISO_DAY), 0, 0, 0, 0, 0, 0);
     const timeZone = GetSlot(this, TIME_ZONE);
     const instant = ES.GetTemporalInstantFor(timeZone, dtStart, 'compatible');
@@ -455,7 +455,7 @@ export class ZonedDateTime {
   }
   toPlainYearMonth() {
     if (!ES.IsTemporalZonedDateTime(this)) throw new TypeError('invalid receiver');
-    const YearMonth = GetIntrinsic('%Temporal.YearMonth%');
+    const YearMonth = GetIntrinsic('%Temporal.PlainYearMonth%');
     const calendar = GetSlot(this, CALENDAR);
     const fieldNames = ES.CalendarFields(calendar, ['day', 'month', 'year']);
     const fields = ES.ToTemporalDateFields(this, fieldNames);
@@ -463,7 +463,7 @@ export class ZonedDateTime {
   }
   toPlainMonthDay() {
     if (!ES.IsTemporalZonedDateTime(this)) throw new TypeError('invalid receiver');
-    const MonthDay = GetIntrinsic('%Temporal.MonthDay%');
+    const MonthDay = GetIntrinsic('%Temporal.PlainMonthDay%');
     const calendar = GetSlot(this, CALENDAR);
     const fieldNames = ES.CalendarFields(calendar, ['day', 'month', 'year']);
     const fields = ES.ToTemporalDateFields(this, fieldNames);

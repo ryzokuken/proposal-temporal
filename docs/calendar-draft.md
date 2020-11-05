@@ -1,16 +1,16 @@
 # Draft Design of Temporal Calendar API
 
-This doc describes a design for first-class support for non-Gregorian [calendars](https://en.wikipedia.org/wiki/Calendar) in Temporal.  Although most of this document is based on Temporal.Date, most of this applies to Temporal.DateTime, Temporal.YearMonth, Temporal.MonthDay, and Temporal.Time as well.
+This doc describes a design for first-class support for non-Gregorian [calendars](https://en.wikipedia.org/wiki/Calendar) in Temporal.  Although most of this document is based on Temporal.PlainDate, most of this applies to Temporal.PlainDateTime, Temporal.PlainYearMonth, Temporal.PlainMonthDay, and Temporal.PlainTime as well.
 
 ## Data Model
 
-### Temporal.Date internal slots
+### Temporal.PlainDate internal slots
 
 Main issue: https://github.com/tc39/proposal-temporal/issues/290
 
-Temporal.Date currently has three internal slots: year, month, and day. (An "internal slot" refers to actual data, as opposed to "properties", which could be computed.)  In this proposal, those slots are renamed to `[[ISOYear]]`, `[[ISOMonth]]`, and `[[ISODay]]`, and an additional `[[Calendar]]` slot is added.  The calendar slot contains an object implementing the Temporal.Calendar interface, described below.
+Temporal.PlainDate currently has three internal slots: year, month, and day. (An "internal slot" refers to actual data, as opposed to "properties", which could be computed.)  In this proposal, those slots are renamed to `[[ISOYear]]`, `[[ISOMonth]]`, and `[[ISODay]]`, and an additional `[[Calendar]]` slot is added.  The calendar slot contains an object implementing the Temporal.Calendar interface, described below.
 
-No matter which calendar system is being represented, the *data model* in Temporal.Date remains indexed in the ISO calendar.  So, for instance, if you wanted to represent the Hebrew date 5 Nisan 5780, the data model would be 2020-03-30, and the calendar would be responsible for mapping that into the corresponding Hebrew fields, as described further down in this document.
+No matter which calendar system is being represented, the *data model* in Temporal.PlainDate remains indexed in the ISO calendar.  So, for instance, if you wanted to represent the Hebrew date 5 Nisan 5780, the data model would be 2020-03-30, and the calendar would be responsible for mapping that into the corresponding Hebrew fields, as described further down in this document.
 
 This data model makes the simple assumption that the concept of a "day" is a solar day (main issues: [#390](https://github.com/tc39/proposal-temporal/issues/390), [#389](https://github.com/tc39/proposal-temporal/issues/389)).  Most or all modern-use calendars, even those with lunar month cycles, use a solar day, which is based on the time it takes for the Earth to complete one rotation relative to the Sun.
 
@@ -18,20 +18,20 @@ The acclaimed researchers Edward M. Reingold and Nachum Dershowitz discuss this 
 
 > The sun moves from east to west, and night follows day with predictable regularity. This apparent motion of the sun as viewed by an earthbound observer provided the earliest time-keeping standard for humankind. The day is, accordingly, the basic unit of time underlying all calendars, but various calendars use different conventions to structure days into larger units: weeks, months, years, and cycles of years.
 
-Some historical calendars, such as the Hawaiian Moon Calendar, define a day as the time it takes for the Earth to complete one rotation relative to the moon (instead of the Sun), which is slightly shorter on average.  For calendars that use a lunar day, a Temporal.DateTime can be used instead of Temporal.Date when the distinction is important.
+Some historical calendars, such as the Hawaiian Moon Calendar, define a day as the time it takes for the Earth to complete one rotation relative to the moon (instead of the Sun), which is slightly shorter on average.  For calendars that use a lunar day, a Temporal.PlainDateTime can be used instead of Temporal.PlainDate when the distinction is important.
 
 At this time, Temporal does not support subdividing a solar day into anything other than hours, minutes, and seconds.
 However, we have taken a future-proof approach so that if a use case presents itself, we can add `timePlus()`, `timeMinus()`, and `timeDifference()` methods to Temporal.Calendar.
 
-### Temporal.DateTime and Temporal.Time internal slots
+### Temporal.PlainDateTime and Temporal.PlainTime internal slots
 
-As with Temporal.Date, all of these types will gain a `[[Calendar]]` slot, and year, month, and day will be renamed `[[ISOYear]]`, `[[ISOMonth]]`, and `[[ISODay]]`.
+As with Temporal.PlainDate, all of these types will gain a `[[Calendar]]` slot, and year, month, and day will be renamed `[[ISOYear]]`, `[[ISOMonth]]`, and `[[ISODay]]`.
 
-### Temporal.YearMonth and Temporal.MonthDay internal slots
+### Temporal.PlainYearMonth and Temporal.PlainMonthDay internal slots
 
 Main issue: https://github.com/tc39/proposal-temporal/issues/391
 
-For reasons explained above, using the ISO calendar as the internal data model has many advantages.  However, there are several challenges for these two "incomplete" types: lunar months don't line up with solar months, and not every lunar month occurs in every solar year.  After discussing several data model alternatives, we reached the conclusion that the simplest data model for Temporal.YearMonth and Temporal.MonthDay is to make it share the same data model as Temporal.Date, with the same slots.
+For reasons explained above, using the ISO calendar as the internal data model has many advantages.  However, there are several challenges for these two "incomplete" types: lunar months don't line up with solar months, and not every lunar month occurs in every solar year.  After discussing several data model alternatives, we reached the conclusion that the simplest data model for Temporal.PlainYearMonth and Temporal.PlainMonthDay is to make it share the same data model as Temporal.PlainDate, with the same slots.
 
 For calendars that use ISO-style months, such as Gregorian, Solar Buddhist, and Japanese, "ISODay" and "ISOYear" can be ignored for YearMonth and MonthDay respectively.  However, for lunar and lunisolar calendars, such as Hebrew, Saudi Arabian Islamic, and Chinese, these fields allow those calendars to disambiguate which YearMonth and MonthDay are being represented.
 
@@ -53,23 +53,23 @@ All of the following methods return new Temporal objects.
 
 ```javascript
 class Temporal.Calendar {
-	/** Constructs a Temporal.Date from a free-form option bag */
+	/** Constructs a Temporal.PlainDate from a free-form option bag */
 	dateFromFields(
 		fields: object,
 		constructor: function
-	) : Temporal.Date;
+	) : Temporal.PlainDate;
 
-	/** Constructs a Temporal.YearMonth from a free-form option bag */
+	/** Constructs a Temporal.PlainYearMonth from a free-form option bag */
 	yearMonthFromFields(
 		fields: object,
 		constructor: function
-	) : Temporal.YearMonth;
+	) : Temporal.PlainYearMonth;
 
-	/** Constructs a Temporal.MonthDay from a free-form option bag */
+	/** Constructs a Temporal.PlainMonthDay from a free-form option bag */
 	monthDayFromFields(
 		fields: object,
 		constructor: function
-	) : Temporal.MonthDay;
+	) : Temporal.PlainMonthDay;
 
 	/** A string identifier for this calendar */
 	id : string;
@@ -84,24 +84,24 @@ class Temporal.Calendar {
 
 	/** Returns input plus duration according to the calendar rules. */
 	dateAdd(
-		input: Temporal.Date,
+		input: Temporal.PlainDate,
 		duration: Temporal.Duration,
 		options: /* options bag */,
 		constructor: function
-	) : Temporal.Date;
+	) : Temporal.PlainDate;
 
 	/** Returns input minus duration according to the calendar rules. */
 	dateSubtract(
-		input: Temporal.Date,
+		input: Temporal.PlainDate,
 		duration: Temporal.Duration,
 		options: /* options bag */,
 		constructor: function
-	) : Temporal.Date;
+	) : Temporal.PlainDate;
 
 	/** Returns larger minus smaller, which are dates in the same calendar. */
 	dateUntil(
-		smaller: Temporal.Date,
-		larger: Temporal.Date,
+		smaller: Temporal.PlainDate,
+		larger: Temporal.PlainDate,
 		options: /* options bag */
 	) : Temporal.Duration;
 
@@ -111,40 +111,40 @@ class Temporal.Calendar {
 	////////////////////////////////////
 
 	year(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	month(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	day(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	dayOfWeek(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	weekOfYear(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	daysInMonth(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	daysInYear(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : number;
 
 	inLeapYear(
-		input: Temporal.Date
+		input: Temporal.PlainDate
 	) : boolean;
 }
 ```
 
-The corresponding fields on Temporal.Date.prototype should forward requests to the calendar as discussed in [#291](https://github.com/tc39/proposal-temporal/issues/291):
+The corresponding fields on Temporal.PlainDate.prototype should forward requests to the calendar as discussed in [#291](https://github.com/tc39/proposal-temporal/issues/291):
 
 ```javascript
 get foo(...args) {
@@ -153,9 +153,9 @@ get foo(...args) {
 ```
 
 
-Calendars can add additional *calendar-specific accessors*, such as the year type ("kesidran", "chaser", "maleh") in the Hebrew calendar, and may add conforming accessor methods to Temporal.Date.prototype.
+Calendars can add additional *calendar-specific accessors*, such as the year type ("kesidran", "chaser", "maleh") in the Hebrew calendar, and may add conforming accessor methods to Temporal.PlainDate.prototype.
 
-If any of these accessors are needed for constructing a Temporal.Date from fields, then the calendar should implement `fields()` which, given an array of field names in the ISO calendar, returns an array of equivalent field names in the calendar.
+If any of these accessors are needed for constructing a Temporal.PlainDate from fields, then the calendar should implement `fields()` which, given an array of field names in the ISO calendar, returns an array of equivalent field names in the calendar.
 We are not aware of this being necessary for any built-in calendars.
 
 An instance of `MyCalendar` is *expected* to have stateless behavior; i.e., calling a method with the same arguments should return the same result each time.  There would be no mechanism for enforcing that user-land calendars are stateless; the calendar author should test this expectation on their own in order to prevent unexpected behavior such as the lack of round-tripping.
@@ -164,7 +164,7 @@ An instance of `MyCalendar` is *expected* to have stateless behavior; i.e., call
 
 Main issue: https://github.com/tc39/proposal-temporal/issues/403
 
-If properties of Temporal.Date, etc., are to be enumerable, the calendar should choose which properties to expose.  This operation can cake place in the factory methods of the Temporal.Calendar protocol, such as `.dateFromFields()`.
+If properties of Temporal.PlainDate, etc., are to be enumerable, the calendar should choose which properties to expose.  This operation can cake place in the factory methods of the Temporal.Calendar protocol, such as `.dateFromFields()`.
 
 This is a work in progress, and this document will be updated once we reach consensus on #403.
 
@@ -205,7 +205,7 @@ const PartialIsoCalendar = {
 }
 ```
 
-It would in effect render default Temporal.Date (and Temporal.DateTime) with fewer operations until you specify a calendar.  The following methods/getters would throw:
+It would in effect render default Temporal.PlainDate (and Temporal.PlainDateTime) with fewer operations until you specify a calendar.  The following methods/getters would throw:
 
 - .dayOfWeek
 - .weekOfYear
@@ -238,11 +238,11 @@ To enable the extended set of operations, the user would just use `.withCalendar
 
 ```javascript
 // Force the Gregorian calendar:
-Temporal.Date.from("2019-12-06").withCalendar("gregory").weekOfYear;
+Temporal.PlainDate.from("2019-12-06").withCalendar("gregory").weekOfYear;
 
 // Use a calendar from another source:
-Temporal.Date.from("2019-12-06").withCalendar(Intl.defaultCalendar).weekOfYear;
-Temporal.Date.from("2019-12-06").withCalendar(request.calendar).weekOfYear;
+Temporal.PlainDate.from("2019-12-06").withCalendar(Intl.defaultCalendar).weekOfYear;
+Temporal.PlainDate.from("2019-12-06").withCalendar(request.calendar).weekOfYear;
 ```
 
 The calendar IDs are less clear.  If the partial ISO calendar used ID `"iso"`, then what would the full ISO calendar use?  ID "gregory" ([why not "gregorian"?](https://github.com/tc39/ecma402/issues/212)) is misleading because there are Gregorian calendars that do not all agree on the same rules for things like weeks of the year.  One solution could be to use a nullish ID like `null` or `""` for the partial ISO calendar and `"iso"` for the full ISO calendar.  Alternatively, "iso8601", the identifier defined by CLDR as "Gregorian calendar using the ISO 8601 calendar week rules", could be the identifier for the full ISO calendar.
@@ -251,13 +251,13 @@ The calendar IDs are less clear.  If the partial ISO calendar used ID `"iso"`, t
 
 In this option, objects without a calendar would have their own type, and calendar-specific types would be used only when calendar-dependent functionality is required.  This is similar in spirit to Partial ISO (Option 3), except that new types are used, rather than simply a null calendar on the existing type.
 
-For example, name bikeshedding aside, `Temporal.ZonedAbsolute` (main issue: [#569](https://github.com/tc39/proposal-temporal/issues/569)) could become an intermediate type between `Temporal.Instant` and `Temporal.DateTime` that does not include arithmetic or calendar-dependent functionality.  A calendar would be necessary when converting from `Temporal.ZonedAbsolute` into `Temporal.DateTime`.
+For example, name bikeshedding aside, `Temporal.ZonedAbsolute` (main issue: [#569](https://github.com/tc39/proposal-temporal/issues/569)) could become an intermediate type between `Temporal.Instant` and `Temporal.PlainDateTime` that does not include arithmetic or calendar-dependent functionality.  A calendar would be necessary when converting from `Temporal.ZonedAbsolute` into `Temporal.PlainDateTime`.
 
 - `Temporal.Instant` = a point in time, not specific to a certain place.
 	- Data Model: [[EpochNanoseconds]]
 - `Temporal.ZonedAbsolute` = a point in time at a place on Earth.
 	- Data Model: [[EpochNanoseconds]] + [[TimeZone]]
-- `Temporal.DateTime` = a wall clock time, not specific to a certain place.
+- `Temporal.PlainDateTime` = a wall clock time, not specific to a certain place.
 	- Data Model: [[Calendar]] + ISO fields
 
 Conversion methods between these three types could be:
@@ -268,15 +268,15 @@ Temporal.Instant.prototype.withZone(tz) : Temporal.ZonedAbsolute;
 Temporal.ZonedAbsolute.prototype.toInstant() : Temporal.Instant;
 
 // ZonedAbsolute <=> DateTime
-Temporal.ZonedAbsolute.prototype.withCalendar(cal) : Temporal.DateTime;
-Temporal.DateTime.prototype.withZone(tz) : Temporal.ZonedAbsolute;
+Temporal.ZonedAbsolute.prototype.withCalendar(cal) : Temporal.PlainDateTime;
+Temporal.PlainDateTime.prototype.withZone(tz) : Temporal.ZonedAbsolute;
 ```
 
 We could add a similar intermediate type for dates without times.  Name bikeshedding aside, this second new type could be `Temporal.AbstractDate`.  The semantics would be:
 
 - `Temporal.AbstractDate` = a solar day at a place on Earth
 	- Data Model: [[EpochDays]] + [[TimeZone]]
-- `Temporal.Date` = a wall clock date, not specific to a certain place.
+- `Temporal.PlainDate` = a wall clock date, not specific to a certain place.
 	- Data Model: [[Calendar]] + ISO fields
 
 Conversion methods:
@@ -287,12 +287,12 @@ Temporal.ZonedAbsolute.prototype.getDate() : Temporal.AbstractDate;
 Temporal.AbstractDate.prototype.withTime() : Temporal.ZonedAbsolute;
 
 // AbstractDate <=> Date
-Temporal.AbstractDate.prototype.withCalendar(cal) : Temporal.Date;
-Temporal.Date.prototype.withZone(tz) : Temporal.AbstractDate;
+Temporal.AbstractDate.prototype.withCalendar(cal) : Temporal.PlainDate;
+Temporal.PlainDate.prototype.withZone(tz) : Temporal.AbstractDate;
 
 // Date <=> DateTime
-Temporal.DateTime.prototype.getDate() : Temporal.Date;
-Temporal.Date.prototype.withTime() : Temporal.DateTime;
+Temporal.PlainDateTime.prototype.getDate() : Temporal.PlainDate;
+Temporal.PlainDate.prototype.withTime() : Temporal.PlainDateTime;
 ```
 
 An additional type, `Temporal.EpochDays`, could be added as an analog of `Temporal.Instant` but with days instead of nanoseconds since epoch.
@@ -327,7 +327,7 @@ Footnotes:
 
 \* from(string) may carry the calendar ID in the string (main issue: [#293](https://github.com/tc39/proposal-temporal/issues/293)).
 
-\*\* @ptomato [pointed out](https://github.com/tc39/proposal-temporal/pull/590#discussion_r427527732) that "if you write Temporal.Date.from({ year: 2020, month: 5, day: 19 }) with no calendar specified, then realistically what else do you mean besides the full ISO calendar?"  Therefore, a calendar argument is not required in T.Date.from.
+\*\* @ptomato [pointed out](https://github.com/tc39/proposal-temporal/pull/590#discussion_r427527732) that "if you write Temporal.PlainDate.from({ year: 2020, month: 5, day: 19 }) with no calendar specified, then realistically what else do you mean besides the full ISO calendar?"  Therefore, a calendar argument is not required in T.Date.from.
 
 \*\*\* The HTML5 spec only supports ISO-8601 ([reference](https://html.spec.whatwg.org/multipage/common-microsyntaxes.html#concept-date)).
 
@@ -521,17 +521,17 @@ Legend:
 
 \**See https://github.com/tc39/proposal-temporal/issues/240#issuecomment-557726669*
 
-## Temporal.Date API changes
+## Temporal.PlainDate API changes
 
-### New Temporal.Date instance methods
+### New Temporal.PlainDate instance methods
 
-Temporal.Date.prototype.with does *not* modify the calendar. A new method is added for that:
+Temporal.PlainDate.prototype.with does *not* modify the calendar. A new method is added for that:
 
 ```javascript
-Temporal.Date.prototype.withCalendar = function(newCalendar: Calendar): Temporal.Date {
+Temporal.PlainDate.prototype.withCalendar = function(newCalendar: Calendar): Temporal.PlainDate {
 	const { year, month, day } = this.getISOFields();
 	// note: call intrinsic version
-	return new Temporal.Date(year, month, day, newCalendar);
+	return new Temporal.PlainDate(year, month, day, newCalendar);
 	// note: use species constructor
 }
 ```
@@ -541,7 +541,7 @@ Temporal.Date.prototype.withCalendar = function(newCalendar: Calendar): Temporal
 This is an open question being discussed in [#293](https://github.com/tc39/proposal-temporal/issues/293).  The issue is that we do not want `toString()` to be lossy by losing the `calendar` field.  One proposal is to append the `Temporal.Calendar.id` field in `[c=ID]` following the date.  For example, `2019-12-06[c=hebrew]` refers to 2019-12-06 projected into the Hebrew calendar.
 
 ```javascript
-Temporal.Date.prototype.toString = function() {
+Temporal.PlainDate.prototype.toString = function() {
 	let calendarKeyword, isoDate;
 	// For Default Calendar Option 3, check for the partial ISO calendar here
 	if (/* this.calendar is the ISO calendar */) {
@@ -556,7 +556,7 @@ Temporal.Date.prototype.toString = function() {
 }
 ```
 
-In this scenario, `Temporal.Date.from()` will call `Temporal.Calendar.from()` to resolve the ID into a Calendar object.
+In this scenario, `Temporal.PlainDate.from()` will call `Temporal.Calendar.from()` to resolve the ID into a Calendar object.
 `Temporal.parse()` will have to add a new `calendar` member to the object it returns, whose value is the string ID given in a `[c=ID]` comment, or `null` if not given.
 
 `Temporal.Calendar.from()` can be monkeypatched by calendar implementors if it is necessary to make new time zones available globally.
@@ -584,16 +584,16 @@ Temporal.Calendar.from = function (item) {
 	return originalTemporalCalendarFrom.call(this, item);
 }
 
-Temporal.Date.from("2019-12-03[c=foo]");
+Temporal.PlainDate.from("2019-12-03[c=foo]");
 	// 2019-12-03 projected into the foo calendar
 ```
 
-### New behavior of Temporal.Date.from
+### New behavior of Temporal.PlainDate.from
 
 The exact behavior of this method depends on a few open discussions, but some logic will be passed to the Calendar object in order to project the date into the correct calendar system.
 
 ```javascript
-Temporal.Date.from = function(thing: string | object, options: object) {
+Temporal.PlainDate.from = function(thing: string | object, options: object) {
 	if (typeof thing === "string") {
 		let object = // components of string
 		return Temporal.Calendar.iso.dateFromFields(object, this);
@@ -606,17 +606,17 @@ Temporal.Date.from = function(thing: string | object, options: object) {
 }
 ```
 
-### Semantics of existing Temporal.Date instance methods
+### Semantics of existing Temporal.PlainDate instance methods
 
-As discussed earlier, Temporal.Date will defer to Temporal.Calendar methods wherever necessary.  Example implementation of selected Temporal.Date methods:
+As discussed earlier, Temporal.PlainDate will defer to Temporal.Calendar methods wherever necessary.  Example implementation of selected Temporal.PlainDate methods:
 
 ```javascript
-Temporal.Date.prototype.add = function(duration, options) {
-	const constructor = ES.SpeciesConstructor(this, Temporal.Date);
+Temporal.PlainDate.prototype.add = function(duration, options) {
+	const constructor = ES.SpeciesConstructor(this, Temporal.PlainDate);
 	return this.calendar.dateAdd(this, duration, options, constructor);
 }
 
-Temporal.Date.prototype.until = function(other, options) {
+Temporal.PlainDate.prototype.until = function(other, options) {
 	if (other.calendar !== this.calendar) {
 		// Note: call intrinsic versions of this method
 		other = other.withCalendar(this.calendar);
@@ -624,23 +624,23 @@ Temporal.Date.prototype.until = function(other, options) {
 	return this.calendar.dateUntil(this, other, options);
 }
 
-Temporal.Date.prototype.with = function(overrides) {
+Temporal.PlainDate.prototype.with = function(overrides) {
   const newFields = Object.assign({}, this.getFields(), overrides);
   return this.calendar.dateFromFields(newFields);
 }
 
-Temporal.Date.prototype.getYearMonth = function() {
+Temporal.PlainDate.prototype.getYearMonth = function() {
   return this.calendar.yearMonthFromFields(this.getFields());
 }
 ```
 
 Note that the arguments to methods like `with`, `withDate`, etc., are interpreted in the instance's calendar.
 
-## Other Temporal.Date constructors
+## Other Temporal.PlainDate constructors
 
 ### Temporal.Instant.prototype.inTimeZone
 
-The third way to get a Temporal.Date (besides from a string and an object) is to convert it from a Temporal.Instant.
+The third way to get a Temporal.PlainDate (besides from a string and an object) is to convert it from a Temporal.Instant.
 
 The API here would depend on the decision for whether to require an explicit default calendar.  If we decide to use a default calendar (options 1, 3, and 4), no API change would be required for this method.  If we decide to require an explicit calendar, then the API would likely be changed as follows:
 
@@ -654,7 +654,7 @@ Temporal.Instant.prototype.inTimeZone = function(timeZone, calendar) {
 
 ### Temporal.now
 
-The fourth way to get a Temporal.Date is to get the current time according to the environment (or mocked for SES).
+The fourth way to get a Temporal.PlainDate is to get the current time according to the environment (or mocked for SES).
 
 As above, this API depends on whether we decide to use a default calendar.  If we require an explicit calendar, it would be similar to above:
 
@@ -670,15 +670,15 @@ Temporal.now.plainDate = function(calendar) {
 
 All of the following APIs would gain an internal slot for the calendar.
 
-- Temporal.DateTime
-- Temporal.Time
-- Temporal.YearMonth
-- Temporal.MonthDay
+- Temporal.PlainDateTime
+- Temporal.PlainTime
+- Temporal.PlainYearMonth
+- Temporal.PlainMonthDay
 
-### New behaviour of Temporal.MonthDay.withYear
+### New behaviour of Temporal.PlainMonthDay.withYear
 
-In some calendars (such as the Japanese imperial calendar) a year is not enough information to be able to convert Temporal.MonthDay to Temporal.Date.
-Temporal.MonthDay.withYear, which previously took a number argument (the year), can now be passed an object which must have properties that provide the needed information.
+In some calendars (such as the Japanese imperial calendar) a year is not enough information to be able to convert Temporal.PlainMonthDay to Temporal.PlainDate.
+Temporal.PlainMonthDay.withYear, which previously took a number argument (the year), can now be passed an object which must have properties that provide the needed information.
 (In the Japanese calendar, it needs to have `era` and `year` properties.)
 
 Passing a numerical year argument `num` is equivalent to passing `{ year: num }`.

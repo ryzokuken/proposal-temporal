@@ -21,8 +21,8 @@ How to get the current date and time in the local time zone?
 {{cookbook/getCurrentDate.mjs}}
 ```
 
-Note that if you just want the date and not the time, you should use `Temporal.Date`.
-If you want both, use `Temporal.DateTime`.
+Note that if you just want the date and not the time, you should use `Temporal.PlainDate`.
+If you want both, use `Temporal.PlainDateTime`.
 
 ### Unix timestamp
 
@@ -71,7 +71,7 @@ Here is an example using an HTML `<input type="date">` element with any day beyo
 
 ### Noon on a particular date
 
-An example of combining a calendar date (`Temporal.Date`) and a wall-clock time (`Temporal.Time`) into a `Temporal.DateTime`.
+An example of combining a calendar date (`Temporal.PlainDate`) and a wall-clock time (`Temporal.PlainTime`) into a `Temporal.PlainDateTime`.
 
 ```javascript
 {{cookbook/noonOnDate.mjs}}
@@ -79,7 +79,7 @@ An example of combining a calendar date (`Temporal.Date`) and a wall-clock time 
 
 ### Birthday in 2030
 
-An example of combining a day on the calendar (`Temporal.MonthDay`) and a year into a `Temporal.Date`.
+An example of combining a day on the calendar (`Temporal.PlainMonthDay`) and a year into a `Temporal.PlainDate`.
 
 ```javascript
 {{cookbook/birthdayIn2030.mjs}}
@@ -107,7 +107,7 @@ Each Temporal type has a `compare()` static method, which can be passed to `Arra
 
 ### Sort DateTimes
 
-Sort a list of `Temporal.DateTime`s, for example in order to get a conference schedule in the correct order.
+Sort a list of `Temporal.PlainDateTime`s, for example in order to get a conference schedule in the correct order.
 Sorting other Temporal types would work exactly the same way as this.
 
 ```javascript
@@ -136,7 +136,7 @@ Here's an example of rounding a time _down_ to the previously occurring whole ho
 ### Round a date to the nearest start of the month
 
 Rounding is only defined for time fields.
-Rounding a date field can be ambiguous, so date-only types such as `Temporal.Date` don't have a `round()` method.
+Rounding a date field can be ambiguous, so date-only types such as `Temporal.PlainDate` don't have a `round()` method.
 If you need to round a date to the nearest month, for example, then you must explicitly pick what kind of rounding you want.
 Here is an example of rounding to the nearest start of a month, rounding up in case of a tie:
 
@@ -393,19 +393,19 @@ This could be used for workout tracking, racing (including _long_ and potentiall
 
 ### Nth weekday of the month
 
-Example of getting a `Temporal.Date` representing the first Tuesday of the given `Temporal.YearMonth`, adaptable to other weekdays.
+Example of getting a `Temporal.PlainDate` representing the first Tuesday of the given `Temporal.PlainYearMonth`, adaptable to other weekdays.
 
 ```javascript
 {{cookbook/getFirstTuesdayOfMonth.mjs}}
 ```
 
-Given a `Temporal.YearMonth` instance and an ISO 8601 ordinal calendar day of the week ranging from 1 (Monday) to 7 (Sunday), return a chronologically ordered array of `Temporal.Date` instances corresponding with every day in the month that is the specified day of the week (of which there will always be either four or five).
+Given a `Temporal.PlainYearMonth` instance and an ISO 8601 ordinal calendar day of the week ranging from 1 (Monday) to 7 (Sunday), return a chronologically ordered array of `Temporal.PlainDate` instances corresponding with every day in the month that is the specified day of the week (of which there will always be either four or five).
 
 ```javascript
 {{cookbook/getWeeklyDaysInMonth.mjs}}
 ```
 
-Given a `Temporal.Date` instance, return the count of preceding days in its month that share its day of the week.
+Given a `Temporal.PlainDate` instance, return the count of preceding days in its month that share its day of the week.
 
 ```javascript
 {{cookbook/countPrecedingWeeklyDaysInMonth.mjs}}
@@ -431,7 +431,7 @@ Depending on the behaviour you want, you will need to pick the right `overflow` 
 
 ### Next weekly occurrence
 
-From a `Temporal.Instant` instance and a local `Temporal.TimeZone`, get a `Temporal.DateTime` representing the next occurrence of a weekly event that is scheduled on a particular weekday and time in a particular time zone. (For example, "weekly on Thursdays at 08:45 California time").
+From a `Temporal.Instant` instance and a local `Temporal.TimeZone`, get a `Temporal.PlainDateTime` representing the next occurrence of a weekly event that is scheduled on a particular weekday and time in a particular time zone. (For example, "weekly on Thursdays at 08:45 California time").
 
 ```javascript
 {{cookbook/nextWeeklyOccurrence.mjs}}

@@ -24,7 +24,7 @@ The time zone string is written according to the rules of the time zone database
 
 ## MonthDay Syntax
 
-ISO-8601 specifies syntax appropriate for Temporal.Date, Temporal.DateTime, and Temporal.YearMonth, but not Temporal.MonthDay, except in the special case of a duration.  We are establishing the following convention:
+ISO-8601 specifies syntax appropriate for Temporal.PlainDate, Temporal.PlainDateTime, and Temporal.PlainYearMonth, but not Temporal.PlainMonthDay, except in the special case of a duration.  We are establishing the following convention:
 
 ```
 07-04
@@ -83,7 +83,7 @@ Example of a maximal length string containing both an IANA time zone name and a 
 
 ### Calendar-dependent YearMonth and MonthDay
 
-Based on the data model discussion in [#391](https://github.com/tc39/proposal-temporal/issues/391), YearMonth and MonthDay use the Temporal.Date data model when in a non-ISO calendar system.  For example, the Hebrew calendar might express the YearMonth "Iyar 5780" as 2020-04-25, the first day of that month in the ISO calendar.
+Based on the data model discussion in [#391](https://github.com/tc39/proposal-temporal/issues/391), YearMonth and MonthDay use the Temporal.PlainDate data model when in a non-ISO calendar system.  For example, the Hebrew calendar might express the YearMonth "Iyar 5780" as 2020-04-25, the first day of that month in the ISO calendar.
 
 When expressed as an ISO string, we would say:
 

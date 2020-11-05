@@ -113,7 +113,7 @@ class Temporal.TimeZone {
    * exact times, that are possible points on the timeline corresponding
    * to it. In getInstantFor(), one of these will be selected, depending
    * on the disambiguation option. */
-  getPossibleInstantsFor(dateTime : Temporal.DateTime) : array<Temporal.Instant>;
+  getPossibleInstantsFor(dateTime : Temporal.PlainDateTime) : array<Temporal.Instant>;
 
   /** Return the next time zone transition after `startingPoint`. */
   getNextTransition(startingPoint : Temporal.Instant) : Temporal.Instant | null;
@@ -124,9 +124,9 @@ class Temporal.TimeZone {
   // API methods that a subclassed custom time zone doesn't need to touch
 
   get id() : string;
-  getDateTimeFor(instant : Temporal.Instant) : Temporal.DateTime;
+  getDateTimeFor(instant : Temporal.Instant) : Temporal.PlainDateTime;
   getInstantFor(
-      dateTime : Temporal.DateTime,
+      dateTime : Temporal.PlainDateTime,
       options?: object
   ) : Temporal.Instant;
   getOffsetStringFor(instant : Temporal.Instant) : string;
